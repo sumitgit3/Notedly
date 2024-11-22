@@ -78,6 +78,39 @@ const Mutation = {
             throw new AuthenticationError('error signing in');
         }
         return jwt.sign({ id: user._id }, process.env.JWT_SECRET_KEY);
+    },
+    toggleFavorite:async(parent,{id},{user})=>{
+        if(!user){
+            throw new AuthenticationError('You must be signned in to FavoriteNote');
+        }
+        try {
+            const note = await models.Note.findById(id);
+            const hasUser =  note.favoritedBy.indexOf(user.id);
+            if(hasUser >= 0) {
+               return await models.Note.findByIdAndUpdate(id,
+                    {
+                        $pull:{
+                            favoritedBy:new mongoose.Types.ObjectId(user.id)
+                        },
+                        $inc :{favoriteCount:-1}
+                    },
+                    {new:true}
+                );
+            }
+            else {
+                return await models.Note.findByIdAndUpdate(id,
+                    {
+                        $push:{
+                            favoritedBy:new mongoose.Types.ObjectId(user.id)
+                        },
+                        $inc :{favoriteCount:1}
+                    },
+                    {new:true}
+                );
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
 }

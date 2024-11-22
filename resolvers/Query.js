@@ -1,7 +1,7 @@
 const models = require('../models');
 
 const Query  = {
-    notes : async(parent,args,{user})=>{
+    notes : async()=>{
         const notes = await models.Note.find({});
         return notes;
     },

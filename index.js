@@ -5,11 +5,18 @@ const {ApolloServer} = require('apollo-server-express');
 const resolvers = require('./resolvers');
 const typeDefs = require('./schema')
 const getUser = require('./util/getUser')
+const cors = require('cors');
+const helmet = require('helmet')
+const depthLimit = require('graphql-depth-limit')
+const {createComplexityLimitRule} = require('graphql-validation-complexity')
 
-
+connectToDB();
 const port = process.env.PORT || 3000;
 const app = express();
-connectToDB();
+app.use(cors());
+app.use(helmet());
+
+
 
 const server = new ApolloServer({
     typeDefs,
@@ -18,7 +25,8 @@ const server = new ApolloServer({
         const token = req.headers.authorization;
         const user = getUser(token);
         return {user};
-    }
+    },
+    validationRules: [depthLimit(5), createComplexityLimitRule(1000)],
 });
 
 app.get('/',(req,res)=>{

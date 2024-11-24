@@ -1,6 +1,11 @@
 const {gql} = require('apollo-server-express');
 const {DateTime} = require('graphql-scalars')
 // Construct a schema, using GraphQL's schema language
+// if data is not in database,need to write resolver for it,
+//if i am returning note,it has favoritedBy but it have only object id in database of user, 
+//to return user according to schema ,need to write resolver
+//if i am returning NoteFeed it should have structure same as schema
+
 const typeDefs = gql`
     scalar DateTime
 
@@ -23,6 +28,12 @@ const typeDefs = gql`
         favorites: [Note!]!
     }
     
+    type NoteFeed {
+        notes :[Note]!
+        cursor :String!
+        hasNextPage:Boolean!
+    }
+    
     type Query {
         notes : [Note!]!
         note(id:ID) : Note!
@@ -30,6 +41,8 @@ const typeDefs = gql`
         user(username:String!):User!
         users:[User!]! 
         me:User!
+
+        noteFeed(cursor:String):NoteFeed
     }
     type Mutation {
         newNote(content:String!) : Note!
